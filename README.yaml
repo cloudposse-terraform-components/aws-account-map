@@ -161,8 +161,6 @@ description: |-
 
   - [cloudposse/terraform-aws-components](https://github.com/cloudposse/terraform-aws-components/tree/main/modules/account-map) -
     Cloud Posse's upstream component
-include:
-  - "docs/terraform.md"
 tags:
   - component/account-map
   - layer/accounts
