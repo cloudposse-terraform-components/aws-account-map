@@ -6,7 +6,7 @@ tags:
   - privileged
 ---
 
-# Component: `account`
+# Component: `account-map`
 
 This component is responsible for provisioning information only: it simply populates Terraform state with data (account
 ids, groups, and roles) that other root modules need via outputs.
