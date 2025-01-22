@@ -6,10 +6,11 @@ locals {
   aws_partition               = data.aws_partition.current.partition
   legacy_terraform_uses_admin = coalesce(var.legacy_terraform_uses_admin, !var.terraform_dynamic_role_enabled)
 
-  full_account_map = {
+  # full_account_map is a map of account names to account IDs, excluding suspended accounts.
+  full_account_map = var.import_organization_accounts ? {
     for acct in data.aws_organizations_organization.organization.accounts
     : acct.name == var.root_account_aws_name ? var.root_account_account_name : acct.name => acct.id if acct.status != "SUSPENDED"
-  }
+  } : module.accounts.outputs.account_names_account_ids
 
   iam_role_arn_templates = {
     for name, info in local.account_info_map : name => format(var.iam_role_arn_template_template, compact(
