@@ -113,6 +113,8 @@ output "terraform_role_name_map" {
 }
 
 resource "local_file" "account_info" {
+  count = var.account_configuration_export_enabled ? 1 : 0
+
   content = templatefile("${path.module}/account-info.tftmpl", {
     account_info_map = local.account_info_map
     account_profiles = local.account_profiles

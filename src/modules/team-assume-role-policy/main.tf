@@ -34,7 +34,7 @@ data "aws_arn" "denied" {
 
 
 module "allowed_role_map" {
-  source = "../../../account-map/modules/roles-to-principals"
+  source = "../roles-to-principals"
 
   privileged         = var.privileged
   role_map           = var.allowed_roles
@@ -45,7 +45,7 @@ module "allowed_role_map" {
 
 
 module "denied_role_map" {
-  source = "../../../account-map/modules/roles-to-principals"
+  source = "../roles-to-principals"
 
   privileged         = var.privileged
   role_map           = var.denied_roles
