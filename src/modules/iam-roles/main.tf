@@ -37,7 +37,7 @@ locals {
   account_name      = lookup(module.always.descriptors, "account_name", module.always.stage)
   root_account_name = local.account_map.root_account_account_name
 
-  current_user_role_arn = coalesce(one(data.awsutils_caller_identity.current[*].eks_role_arn), one(data.awsutils_caller_identity.current[*].arn), "disabled")
+  current_user_role_arn = coalesce(one(data.awsutils_caller_identity.current[*].eks_role_arn), one(data.awsutils_caller_identity.current[*].arn), "arn:${local.account_map.aws_partition}:iam::000000000000:role/disabled")
 
   current_identity_account = local.dynamic_terraform_role_enabled ? split(":", local.current_user_role_arn)[4] : ""
 
