@@ -53,10 +53,27 @@ variable "overridable_team_permission_set_name_pattern" {
 variable "overridable_team_permission_sets_enabled" {
   type        = bool
   description = <<-EOT
+    DEPRECATED: This feature never worked with Dynamic Terraform Roles, so it is deprecated
+    and the default value has changed from `true` to `false`. Use the explicit
+    `trusted_identity_permission_sets` attribute in `aws-team-roles` instead
+    to enable permission sets in the `identity` account to function as teams.
+    HISTORICAL DESCRIPTION:
     When true, any roles (teams or team-roles) in the identity account references in `role_map`
     will cause corresponding AWS SSO PermissionSets to be included in the `permission_set_arn_like` output.
     This has the effect of treating those PermissionSets as if they were teams.
     The main reason to set this `false` is if IAM trust policies are exceeding size limits and you are not using AWS SSO.
     EOT
-  default     = true
+  default     = false
+}
+
+variable "overridable_permission_set_arn_like_role_prefix" {
+  type        = string
+  description = <<-EOT
+    The prefix used to generate the role part of the AWS SSO PermissionSet ARN pattern.
+    The default value is explicit, but does not disinguish between regions.
+    You may want a shorter prefix if trust policies are too large. You may want
+    a longer prefix if you are concerned about IdPs in other regions.
+    EOT
+  default     = "role/aws-reserved/sso.amazonaws.com*/AWSReservedSSO_"
+  nullable    = false
 }
