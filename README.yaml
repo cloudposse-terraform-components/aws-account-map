@@ -172,6 +172,8 @@ categories:
   - layer/accounts
   - provider/aws
   - privileged
+
+  
 # License of this project
 license: "APACHE2"
 # Badges to display
