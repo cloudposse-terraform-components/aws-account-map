@@ -54,7 +54,7 @@ locals {
 
   static_terraform_roles = local.account_map.terraform_roles
 
-  dynamic_terraform_role_maps = {
+  dynamic_terraform_role_maps = local.dynamic_terraform_role_enabled ? {
     for account_name in local.account_map.all_accounts : account_name => {
       apply = format(local.account_map.iam_role_arn_templates[account_name], local.account_map.terraform_role_name_map["apply"])
       plan  = format(local.account_map.iam_role_arn_templates[account_name], local.account_map.terraform_role_name_map["plan"])
@@ -68,15 +68,15 @@ locals {
         local.is_target_user ? null : local.static_terraform_roles[account_name]
       )
     }
-  }
+  } : {}
 
   dynamic_terraform_role_types = { for account_name in local.account_map.all_accounts :
     account_name => try(local.terraform_access_map[account_name], "none")
   }
 
-  dynamic_terraform_roles = { for account_name in local.account_map.all_accounts :
+  dynamic_terraform_roles = local.dynamic_terraform_role_enabled ? { for account_name in local.account_map.all_accounts :
     account_name => local.dynamic_terraform_role_maps[account_name][local.dynamic_terraform_role_types[account_name]]
-  }
+  } : {}
 
   final_terraform_role_arns = { for account_name in local.account_map.all_accounts : account_name =>
     local.dynamic_terraform_role_enabled ? local.dynamic_terraform_roles[account_name] : local.static_terraform_roles[account_name]
