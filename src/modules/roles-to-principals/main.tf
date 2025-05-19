@@ -51,8 +51,8 @@ locals {
     # arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_IdentityAdminRoleAccess_b68e107e9495e2fc
     # But sometimes AWS SSO ARN includes `/region/`, like:
     # arn:aws:iam::123456789012:role/aws-reserved/sso.amazonaws.com/ap-southeast-1/AWSReservedSSO_IdentityAdminRoleAccess_b68e107e9495e2fc
-    # If trust polices get too large, some space can be saved by using `*` instead of `aws-reserved/sso.amazonaws.com*`
-    format("arn:%s:iam::%s:%s%%s_*", local.aws_partition, var.overridable_permission_set_arn_like_role_prefix, module.account_map.outputs.full_account_map[acct]),
+    # If trust polices get too large, some space can be saved by using `*` instead of `sso.amazonaws.com*`
+    format("arn:%s:iam::%s:${var.overridable_permission_set_arn_like_role_prefix}%%s_*", local.aws_partition, module.account_map.outputs.full_account_map[acct]),
     acct == local.identity_account_name ? distinct(concat(v, local.permission_sets_from_team_roles)) : v
   )])))
 }

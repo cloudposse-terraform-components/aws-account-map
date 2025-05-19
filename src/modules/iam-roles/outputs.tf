@@ -9,7 +9,7 @@ output "terraform_role_arns" {
 }
 
 output "terraform_profile_name" {
-  value       = local.profiles_enabled ? local.account_map.profiles[local.account_name] : null
+  value       = local.profiles_enabled ? local.account_map.terraform_profiles[local.account_name] : null
   description = "The AWS config profile name for Terraform to use when provisioning resources in the account, when profiles are in use"
 }
 

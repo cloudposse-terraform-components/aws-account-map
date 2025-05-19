@@ -1,8 +1,10 @@
 locals {
   enabled = module.this.enabled
 
-  allowed_roles      = concat(module.allowed_role_map.principals, module.allowed_role_map.permission_set_arn_like)
-  allowed_principals = sort(var.allowed_principal_arns)
+  allowed_roles = concat(module.allowed_role_map.principals, module.allowed_role_map.permission_set_arn_like)
+  # allowed_roles are more compact than allowed_principals, but just as effective. So if a role is specified twice,
+  # once as a role and once as a principal, we remove the principal.
+  allowed_principals = [for p in sort(var.allowed_principal_arns) : p if !contains(local.allowed_roles, p)]
   allowed_account_names = compact(concat(
     [for k, v in var.allowed_roles : k if length(v) > 0],
     [for k, v in var.allowed_permission_sets : k if length(v) > 0]
@@ -34,22 +36,26 @@ data "aws_arn" "denied" {
 
 
 module "allowed_role_map" {
-  source = "../roles-to-principals"
+  source = "../../../account-map/modules/roles-to-principals"
 
   privileged         = var.privileged
   role_map           = var.allowed_roles
   permission_set_map = var.allowed_permission_sets
+
+  overridable_permission_set_arn_like_role_prefix = var.permission_set_arn_like_role_prefix
 
   context = module.this.context
 }
 
 
 module "denied_role_map" {
-  source = "../roles-to-principals"
+  source = "../../../account-map/modules/roles-to-principals"
 
   privileged         = var.privileged
   role_map           = var.denied_roles
   permission_set_map = var.denied_permission_sets
+
+  overridable_permission_set_arn_like_role_prefix = var.permission_set_arn_like_role_prefix
 
   context = module.this.context
 }

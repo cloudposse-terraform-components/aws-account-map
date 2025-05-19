@@ -47,6 +47,17 @@ variable "denied_permission_sets" {
   default     = {}
 }
 
+variable "permission_set_arn_like_role_prefix" {
+  type        = string
+  description = <<-EOT
+    The prefix used to generate the role part of the AWS SSO PermissionSet ARN pattern.
+    The default value is explicit, but does not distinguish between regions.
+    You may want a shorter prefix if trust policies are too large. You may want
+    a longer prefix if you are concerned about IdPs in other regions.
+    EOT
+  default     = null
+}
+
 variable "iam_users_enabled" {
   type        = bool
   description = "True if you would like IAM Users to be able to assume the role."
