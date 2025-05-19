@@ -1,116 +1,70 @@
-# The `utils_describe_stacks` data resources use the Cloud Posse Utils provider to describe Atmos stacks, and then
-# we merge the results into `local.all_team_vars`. This is the same as running the following locally:
-# ```
-# atmos describe stacks --components=aws-teams,aws-team-roles --component-types=terraform --sections=vars
-# ```
-# The result of these stack descriptions includes all metadata for the given components. For example, we now
-# can filter the result to find all stacks where either `aws-teams` or `aws-team-roles` are deployed.
-#
-# In particular, we can use this data to find the name of the account via `null-label` (defined by
-# `null-label.descriptor_formats.account_name`, typically `<tenant>-<stage>`) where team roles are deployed.
-# We then determine which roles are provisioned and which teams can access any given role in any particular account.
-#
-# `descriptor_formats.account_name` is typically defined in `stacks/orgs/NAMESPACE/_defaults.yaml`, and if not
-# defined, the stack name will default to `stage`.`
-#
-# If `namespace` is included in `descriptor_formats.account_name`, then we additionally filter to only stacks with
-# the same `namespace` as `module.this.namespace`. See `local.stack_namespace_index` and `local.stack_namespace_index`
-#
-# https://atmos.tools/cli/commands/describe/stacks/
-# https://registry.terraform.io/providers/cloudposse/utils/latest/docs/data-sources/describe_stacks
-data "utils_describe_stacks" "teams" {
-  count = local.dynamic_role_enabled ? 1 : 0
-
-  components      = ["aws-teams"]
-  component_types = ["terraform"]
-  sections        = ["vars"]
-}
-
-data "utils_describe_stacks" "team_roles" {
-  count = local.dynamic_role_enabled ? 1 : 0
-
-  components      = ["aws-team-roles"]
-  component_types = ["terraform"]
-  sections        = ["vars"]
-}
+##
+## What we want at the end of all this is a map of maps so we can say:
+##
+##   allowed_role = authorized_users[current_user][target_account]
+##
+## To compute this, we have to invert the mapping we are given, and resolve collisions.
+##
+## What we are given is, for every account, a list of principals that are
+## allowed to assume the planner role in that account, and another list of
+## principals that are allowed to assume the terraform role in that account.
+## What we want is principal -> account -> role, where role is apply
+## if they are allowed into the terraform role, and plan otherwise.
+## We do not need to include principals that are not allowed into either role.
+##
+## To make things both easier and more robust, instead of using the IAM Role ARN
+## for people using AWS SSO Permission Sets, we will use the combination of the
+## account ID and the Permission Set Name to identify the principal.
 
 locals {
   dynamic_role_enabled = module.this.enabled && var.terraform_dynamic_role_enabled
+
+  identity_account_id = local.account_info_map[local.account_role_map.identity].id
 
   # `var.terraform_role_name_map` maps some team role in the `aws-team-roles` configuration to "plan" and some other team to "apply".
   apply_role = var.terraform_role_name_map.apply
   plan_role  = var.terraform_role_name_map.plan
 
-  # If a namespace is included with the stack name, only loop through stacks in the same namespace
-  # zero-based index showing position of the namespace in the stack name
-  stack_namespace_index = try(index(module.this.normalized_context.descriptor_formats.stack.labels, "namespace"), -1)
-  stack_has_namespace   = local.stack_namespace_index >= 0
-  stack_account_map     = { for k, v in module.atmos : k => lookup(v.descriptors, "account_name", v.stage) }
-
-  # We would like to use code like this:
-  #   teams_stacks = local.dynamic_role_enabled ? { for k, v ... } : {}
-  # but that generates an error: "Inconsistent conditional result types"
-  # See https://github.com/hashicorp/terraform/issues/33303
-  # To work around this, we have "empty" values that depend on the condition.
-  empty_map = {
-    true  = null
-    false = {}
+  # For every team-roles configuration, normalize authorized principals to a list like this:
+  # { "account-name" = { "plan" = [ "principal-arn", ... ], "apply" = [ "principal-arn", ... ] } }
+  # This is made complicated because principals can be specified as:
+  # - a principal ARN via trusted_role_arns
+  # - a team name via trusted_teams
+  # - a permission set in the `identity` account via trusted_identity_permission_sets
+  # - a permission set in the target account via trusted_permission_sets
+  account_auths = {
+    for stack, vars in local.team_roles_vars : local.stack_account_map[stack] => {
+      for i, role in [local.apply_role, local.plan_role] : i == 0 ? "apply" : "plan" => concat(
+        [for principal in vars.roles[role].trusted_role_arns : principal],
+        [for principal in vars.roles[role].trusted_teams : local.team_arns[principal]],
+        [
+          for principal in vars.roles[role].trusted_identity_permission_sets :
+          format("%s:%s", local.identity_account_id, principal)
+        ],
+        [
+          for principal in vars.roles[role].trusted_permission_sets :
+          format("%s:%s", local.account_info_map[local.stack_account_map[stack]].id, principal)
+        ],
+      )
+    }
   }
-  empty = local.empty_map[local.dynamic_role_enabled]
 
-  # ASSUMPTIONS: The stack pattern is the same for all accounts and uses the same delimiter as null-label
-  teams_stacks = local.dynamic_role_enabled ? {
-    for k, v in yamldecode(data.utils_describe_stacks.teams[0].output) : k => v if !local.stack_has_namespace || try(split(module.this.delimiter, k)[local.stack_namespace_index] == module.this.namespace, false)
-  } : local.empty
+  # Get the complete, sorted, deduplicated list of all principals that are allowed to assume the planner role in any account.
+  all_principals = sort(distinct(flatten([for account, roles in local.account_auths : values(roles)])))
 
-  teams_vars   = { for k, v in local.teams_stacks : k => v.components.terraform.aws-teams.vars if try(v.components.terraform.aws-teams.vars, null) != null }
-  teams_config = local.dynamic_role_enabled ? values(local.teams_vars)[0].teams_config : local.empty
-  team_names   = [for k, v in local.teams_config : k if try(v.enabled, true)]
-  team_arns    = { for team_name in local.team_names : team_name => format(local.iam_role_arn_templates[local.account_role_map.identity], team_name) }
+  # Build up the principal -> account -> role map by first filling in the map for all principals allowed to assume the apply role.
+  # Then, for each principal allowed to assume the plan role, add the account to the map if it is not already there.
+  apply_principal_auths = {
+    for principal in local.all_principals : principal => {
+      for account, roles in local.account_auths : account => "apply" if contains(roles.apply, principal)
+    }
+  }
 
-  team_roles_stacks = local.dynamic_role_enabled ? {
-    for k, v in yamldecode(data.utils_describe_stacks.team_roles[0].output) : k => v if !local.stack_has_namespace || try(split(module.this.delimiter, k)[local.stack_namespace_index] == module.this.namespace, false)
-  } : local.empty
-
-  team_roles_vars = { for k, v in local.team_roles_stacks : k => v.components.terraform.aws-team-roles.vars if try(v.components.terraform.aws-team-roles.vars, null) != null }
-
-  all_team_vars = merge(local.teams_vars, local.team_roles_vars)
-
-  stack_planners     = { for k, v in local.team_roles_vars : k => v.roles[local.plan_role].trusted_teams if try(length(v.roles[local.plan_role].trusted_teams), 0) > 0 && try(v.roles[local.plan_role].enabled, true) }
-  stack_terraformers = { for k, v in local.team_roles_vars : k => v.roles[local.apply_role].trusted_teams if try(length(v.roles[local.apply_role].trusted_teams), 0) > 0 && try(v.roles[local.apply_role].enabled, true) }
-
-  team_planners = { for team in local.team_names : team => {
-    for stack, trusted in local.stack_planners : local.stack_account_map[stack] => "plan" if contains(trusted, team)
-  } }
-  team_terraformers = { for team in local.team_names : team => {
-    for stack, trusted in local.stack_terraformers : local.stack_account_map[stack] => "apply" if contains(trusted, team)
-  } }
-
-  role_arn_terraform_access = { for team in local.team_names : local.team_arns[team] => merge(local.team_planners[team], local.team_terraformers[team]) }
+  # Now create the map with "plan" roles, and overwrite with "apply" roles where they exist.
+  principal_terraform_access_map = {
+    for principal in local.all_principals : principal => merge({
+      for account, roles in local.account_auths : account => "plan" if contains(roles.plan, principal)
+    }, lookup(local.apply_principal_auths, principal, {}))
+  }
 }
 
-module "atmos" {
-  # local.all_team_vars is empty map when dynamic_role_enabled is false
-  for_each = local.all_team_vars
-
-  source  = "cloudposse/label/null"
-  version = "0.25.0"
-
-  enabled             = true
-  namespace           = lookup(each.value, "namespace", null)
-  tenant              = lookup(each.value, "tenant", null)
-  environment         = lookup(each.value, "environment", null)
-  stage               = lookup(each.value, "stage", null)
-  name                = lookup(each.value, "name", null)
-  delimiter           = lookup(each.value, "delimiter", null)
-  attributes          = lookup(each.value, "attributes", [])
-  tags                = lookup(each.value, "tags", {})
-  additional_tag_map  = lookup(each.value, "additional_tag_map", {})
-  label_order         = lookup(each.value, "label_order", [])
-  regex_replace_chars = lookup(each.value, "regex_replace_chars", null)
-  id_length_limit     = lookup(each.value, "id_length_limit", null)
-  label_key_case      = lookup(each.value, "label_key_case", null)
-  label_value_case    = lookup(each.value, "label_value_case", null)
-  descriptor_formats  = lookup(each.value, "descriptor_formats", {})
-  labels_as_tags      = lookup(each.value, "labels_as_tags", [])
-}
