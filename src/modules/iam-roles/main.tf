@@ -37,14 +37,19 @@ locals {
   account_name      = lookup(module.always.descriptors, "account_name", module.always.stage)
   root_account_name = local.account_map.root_account_account_name
 
-  current_user_role_arn = coalesce(one(data.awsutils_caller_identity.current[*].eks_role_arn), one(data.awsutils_caller_identity.current[*].arn), "arn:${local.account_map.aws_partition}:iam::000000000000:role/disabled")
+  current_user_role_arn = coalesce(one(data.awsutils_caller_identity.current[*].eks_role_arn), one(data.awsutils_caller_identity.current[*].arn), "disabled")
 
-  current_identity_account = local.dynamic_terraform_role_enabled ? split(":", local.current_user_role_arn)[4] : ""
+  current_user_account = one(data.awsutils_caller_identity.current[*].account_id)
 
-  terraform_access_map = try(local.account_map.terraform_access_map[local.current_user_role_arn], {})
+  # If the user's current role is an SSO role, extract the permission set from the role ARN.
+  # Use the combination of account ID and Permission Set Name to determine the Terraform role to assume.
+  # Note that `awsutils_caller_identity` has already converted the ARN to the format `arn:<aws-partition>:iam::<account_id>:role/<role_name>`.
+  permission_set = try(format("%s:%s", regex("^arn:[^:]+:iam::([0-9]{12}):role/AWSReservedSSO_([^_]+)_", local.current_user_role_arn)...), null)
 
-  is_root_user   = local.current_identity_account == local.account_map.full_account_map[local.root_account_name]
-  is_target_user = local.current_identity_account == local.account_map.full_account_map[local.account_name]
+  terraform_access_map = try(local.account_map.terraform_access_map[coalesce(local.permission_set, local.current_user_role_arn)], {})
+
+  is_root_user   = local.current_user_account == local.account_map.full_account_map[local.root_account_name]
+  is_target_user = local.current_user_account == local.account_map.full_account_map[local.account_name]
 
   account_org_role_arns = { for name, id in local.account_map.full_account_map : name =>
     name == local.root_account_name ? null : format(
@@ -70,9 +75,9 @@ locals {
     }
   } : {}
 
-  dynamic_terraform_role_types = { for account_name in local.account_map.all_accounts :
+  dynamic_terraform_role_types = local.dynamic_terraform_role_enabled ? { for account_name in local.account_map.all_accounts :
     account_name => try(local.terraform_access_map[account_name], "none")
-  }
+  } : {}
 
   dynamic_terraform_roles = local.dynamic_terraform_role_enabled ? { for account_name in local.account_map.all_accounts :
     account_name => local.dynamic_terraform_role_maps[account_name][local.dynamic_terraform_role_types[account_name]]
