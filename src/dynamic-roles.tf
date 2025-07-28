@@ -63,7 +63,12 @@ locals {
     for k, v in yamldecode(data.utils_describe_stacks.teams[0].output) : k => v if !local.stack_has_namespace || try(split(module.this.delimiter, k)[local.stack_namespace_index] == module.this.namespace, false)
   } : local.empty
 
-  teams_vars   = { for k, v in local.teams_stacks : k => v.components.terraform.aws-teams.vars if try(v.components.terraform.aws-teams.vars, null) != null }
+  teams_vars = {
+    for k, v in local.teams_stacks :
+    k => v.components.terraform[var.teams_component_name].vars
+    if try(v.components.terraform[var.teams_component_name].vars, null) != null
+  }
+
   teams_config = local.dynamic_role_enabled ? values(local.teams_vars)[0].teams_config : local.empty
   team_names   = [for k, v in local.teams_config : k if try(v.enabled, true)]
   team_arns    = { for team_name in local.team_names : team_name => format(local.iam_role_arn_templates[local.account_role_map.identity], team_name) }
