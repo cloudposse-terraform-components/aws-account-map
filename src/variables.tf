@@ -127,3 +127,15 @@ variable "account_component_name" {
   description = "The name of the account component"
   default     = "account"
 }
+
+variable "teams_component_name" {
+  type        = string
+  description = "The name of the teams component"
+  default     = "aws-teams"
+}
+
+variable "team_roles_component_name" {
+  type        = string
+  description = "The name of the team-roles component"
+  default     = "aws-team-roles"
+}
