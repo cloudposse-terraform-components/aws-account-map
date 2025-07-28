@@ -21,7 +21,7 @@
 data "utils_describe_stacks" "teams" {
   count = local.dynamic_role_enabled ? 1 : 0
 
-  components      = ["aws-teams"]
+  components      = [var.teams_component_name]
   component_types = ["terraform"]
   sections        = ["vars"]
 }
@@ -29,7 +29,7 @@ data "utils_describe_stacks" "teams" {
 data "utils_describe_stacks" "team_roles" {
   count = local.dynamic_role_enabled ? 1 : 0
 
-  components      = ["aws-team-roles"]
+  components      = [var.team_roles_component_name]
   component_types = ["terraform"]
   sections        = ["vars"]
 }
