@@ -63,10 +63,10 @@ locals {
     for k, v in yamldecode(data.utils_describe_stacks.teams[0].output) : k => v if !local.stack_has_namespace || try(split(module.this.delimiter, k)[local.stack_namespace_index] == module.this.namespace, false)
   } : local.empty
 
-  team_roles_vars = {
-    for k, v in local.team_roles_stacks :
-    k => v.components.terraform[var.team_roles_component_name].vars
-    if try(v.components.terraform[var.team_roles_component_name].vars, null) != null
+  team_vars = {
+    for k, v in local.teams_stacks :
+    k => v.components.terraform[var.teams_component_name].vars
+    if try(v.components.terraform[var.teams_component_name].vars, null) != null
   }
 
   teams_config = local.dynamic_role_enabled ? values(local.teams_vars)[0].teams_config : local.empty
@@ -77,7 +77,10 @@ locals {
     for k, v in yamldecode(data.utils_describe_stacks.team_roles[0].output) : k => v if !local.stack_has_namespace || try(split(module.this.delimiter, k)[local.stack_namespace_index] == module.this.namespace, false)
   } : local.empty
 
-  team_roles_vars = { for k, v in local.team_roles_stacks : k => v.components.terraform.aws-team-roles.vars if try(v.components.terraform.aws-team-roles.vars, null) != null }
+  team_roles_vars = { 
+    for k, v in local.team_roles_stacks : 
+    k => v.components.terraform[var.team_roles_compoent_name].vars 
+    if try(v.components.terraform[var.team_roles_component_name].vars, null) != null }
 
   all_team_vars = merge(local.teams_vars, local.team_roles_vars)
 
