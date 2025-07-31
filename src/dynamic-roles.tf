@@ -79,7 +79,7 @@ locals {
 
   team_roles_vars = { 
     for k, v in local.team_roles_stacks : 
-    k => v.components.terraform[var.team_roles_compoent_name].vars 
+    k => v.components.terraform[var.team_roles_component_name].vars 
     if try(v.components.terraform[var.team_roles_component_name].vars, null) != null }
 
   all_team_vars = merge(local.teams_vars, local.team_roles_vars)
