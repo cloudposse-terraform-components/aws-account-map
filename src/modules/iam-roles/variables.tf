@@ -32,3 +32,9 @@ variable "overridable_global_stage_name" {
   description = "The stage name for the organization management account (where the `account-map` state is stored)"
   default     = "root"
 }
+
+variable "account_map_component_name" {
+  type        = string
+  description = "The name of the account-map component"
+  default     = "account-map"
+}

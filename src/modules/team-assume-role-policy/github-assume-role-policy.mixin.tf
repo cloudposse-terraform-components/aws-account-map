@@ -76,7 +76,7 @@ module "github_oidc_provider" {
   source  = "cloudposse/stack-config/yaml//modules/remote-state"
   version = "1.8.0"
 
-  component   = "github-oidc-provider"
+  component   = var.github_oidc_provider_component_name
   environment = var.global_environment_name
 
   privileged = var.privileged
