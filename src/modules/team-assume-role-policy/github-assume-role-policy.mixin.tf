@@ -33,7 +33,7 @@ locals {
     for r in local.trusted_github_repos_sub : (
       r["constraint"] == "" ?
       format("repo:%s/%s:*", coalesce(r["org"], var.trusted_github_org), r["repo"]) :
-      starts_with(r["constraint"], "ref:") || starts_with(r["constraint"], "environment:") ?
+      startswith(r["constraint"], "ref:") || startswith(r["constraint"], "environment:") ?
       format("repo:%s/%s:%s", coalesce(r["org"], var.trusted_github_org), r["repo"], r["constraint"]) :
       format("repo:%s/%s:ref:refs/heads/%s", coalesce(r["org"], var.trusted_github_org), r["repo"], r["constraint"])
     )
