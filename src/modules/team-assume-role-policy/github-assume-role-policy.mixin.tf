@@ -26,14 +26,16 @@ locals {
 }
 
 locals {
-  trusted_github_repos_regexp = "^(?:(?P<org>[^://]*)\\/)?(?P<repo>[^://]*):?(?P<branch>[^://]*)?$"
+  trusted_github_repos_regexp = "^(?:(?P<org>[^://]*)\\/)?(?P<repo>[^://]*):?(?P<constraint>.*)?$"
   trusted_github_repos_sub    = [for r in var.trusted_github_repos : regex(local.trusted_github_repos_regexp, r)]
 
   github_repos_sub = [
     for r in local.trusted_github_repos_sub : (
-      r["branch"] == "" ?
+      r["constraint"] == "" ?
       format("repo:%s/%s:*", coalesce(r["org"], var.trusted_github_org), r["repo"]) :
-      format("repo:%s/%s:ref:refs/heads/%s", coalesce(r["org"], var.trusted_github_org), r["repo"], r["branch"])
+      starts_with(r["constraint"], "ref:") || starts_with(r["constraint"], "environment:") ?
+      format("repo:%s/%s:%s", coalesce(r["org"], var.trusted_github_org), r["repo"], r["constraint"]) :
+      format("repo:%s/%s:ref:refs/heads/%s", coalesce(r["org"], var.trusted_github_org), r["repo"], r["constraint"])
     )
   ]
 }
