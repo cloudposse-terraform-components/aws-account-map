@@ -60,3 +60,9 @@ variable "overridable_team_permission_sets_enabled" {
     EOT
   default     = true
 }
+
+variable "account_map_component_name" {
+  type        = string
+  description = "The name of the account-map component"
+  default     = "account-map"
+}
