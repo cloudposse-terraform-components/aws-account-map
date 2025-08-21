@@ -96,7 +96,7 @@ output "terraform_dynamic_role_enabled" {
 }
 
 output "terraform_access_map" {
-  value       = local.dynamic_role_enabled ? local.role_arn_terraform_access : null
+  value       = local.dynamic_role_enabled ? local.principal_terraform_access_map : null
   description = <<-EOT
   Mapping of team Role ARN to map of account name to terraform action role ARN to assume
 
@@ -113,8 +113,6 @@ output "terraform_role_name_map" {
 }
 
 resource "local_file" "account_info" {
-  count = var.account_configuration_export_enabled ? 1 : 0
-
   content = templatefile("${path.module}/account-info.tftmpl", {
     account_info_map = local.account_info_map
     account_profiles = local.account_profiles

@@ -3,25 +3,6 @@ variable "region" {
   description = "AWS Region"
 }
 
-variable "import_organization_accounts" {
-  type        = bool
-  description = <<-EOT
-    Retrieve accounts from AWS Organizations and import them into the account map.
-    Set false for brownfield environments where you want to curate the list of
-    accounts manually via the `account` component with a static backend.
-    Note that the brownfield `account` component needs to include the `root` account
-    in the `account_names_account_ids` map, whereas the greenfield `account` component
-    does not.
-    EOT
-  default     = true
-}
-
-variable "account_configuration_export_enabled" {
-  type        = bool
-  description = "If true, the account configuration information will be exported to a file under `account-info/`"
-  default     = true
-}
-
 variable "root_account_aws_name" {
   type        = string
   description = "The name of the root account as reported by AWS"
