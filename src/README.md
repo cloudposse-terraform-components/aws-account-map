@@ -10,6 +10,7 @@ tags:
 
 This component is responsible for provisioning information only: it simply populates Terraform state with data (account
 ids, groups, and roles) that other root modules need via outputs.
+## Usage
 
 ## Pre-requisites
 
@@ -58,7 +59,10 @@ components:
 ```
 
 <!-- prettier-ignore-start -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- prettier-ignore-end -->
+
+
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -161,12 +165,17 @@ components:
 | <a name="output_terraform_profiles"></a> [terraform\_profiles](#output\_terraform\_profiles) | A list of all SSO profiles used to run terraform updates |
 | <a name="output_terraform_role_name_map"></a> [terraform\_role\_name\_map](#output\_terraform\_role\_name\_map) | Mapping of Terraform action (plan or apply) to aws-team-role name to assume for that action |
 | <a name="output_terraform_roles"></a> [terraform\_roles](#output\_terraform\_roles) | A list of all IAM roles used to run terraform updates |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-<!-- prettier-ignore-end -->
+<!-- markdownlint-restore -->
+
+
 
 ## References
 
-- [cloudposse/terraform-aws-components](https://github.com/cloudposse/terraform-aws-components/tree/main/modules/account-map) -
-  Cloud Posse's upstream component
 
-[<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/component)
+- [cloudposse-terraform-components](https://github.com/orgs/cloudposse-terraform-components/repositories) - Cloud Posse's upstream component
+
+
+
+
+[<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse-terraform-components/aws-account-map&utm_content=)
+
