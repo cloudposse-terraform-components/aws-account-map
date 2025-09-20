@@ -52,3 +52,9 @@ variable "iam_users_enabled" {
   description = "True if you would like IAM Users to be able to assume the role."
   default     = false
 }
+
+variable "github_oidc_provider_component_name" {
+  type        = string
+  description = "The name of the github-oidc-provider component"
+  default     = "github-oidc-provider"
+}
