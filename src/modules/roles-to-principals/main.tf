@@ -18,6 +18,8 @@ module "account_map" {
   environment = var.overridable_global_environment_name
   stage       = var.overridable_global_stage_name
 
+  defaults = var.account_map_defaults
+
   context = module.always.context
 }
 
