@@ -19,6 +19,7 @@ module "account_map" {
   stage       = var.overridable_global_stage_name
 
   defaults = var.account_map_defaults
+  bypass   = var.account_map_bypass
 
   context = module.always.context
 }
