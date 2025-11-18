@@ -60,3 +60,9 @@ variable "overridable_team_permission_sets_enabled" {
     EOT
   default     = true
 }
+
+variable "account_map_defaults" {
+  type        = any
+  description = "Default values if the data source is empty"
+  default     = null
+}
