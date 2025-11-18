@@ -52,3 +52,15 @@ variable "iam_users_enabled" {
   description = "True if you would like IAM Users to be able to assume the role."
   default     = false
 }
+
+variable "account_map_defaults" {
+  type        = any
+  description = "Default values if the data source is empty"
+  default     = null
+}
+
+variable "account_map_bypass" {
+  type        = bool
+  description = "Set to true to skip looking up the remote state and just return the defaults"
+  default     = false
+}
