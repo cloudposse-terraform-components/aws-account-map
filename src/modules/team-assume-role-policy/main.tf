@@ -40,6 +40,9 @@ module "allowed_role_map" {
   role_map           = var.allowed_roles
   permission_set_map = var.allowed_permission_sets
 
+  account_map_defaults = var.account_map_defaults
+  account_map_bypass = var.account_map_bypass
+
   context = module.this.context
 }
 
@@ -50,6 +53,9 @@ module "denied_role_map" {
   privileged         = var.privileged
   role_map           = var.denied_roles
   permission_set_map = var.denied_permission_sets
+
+  account_map_defaults = var.account_map_defaults
+  account_map_bypass = var.account_map_bypass
 
   context = module.this.context
 }
