@@ -60,3 +60,15 @@ variable "overridable_team_permission_sets_enabled" {
     EOT
   default     = true
 }
+
+variable "account_map_defaults" {
+  type        = any
+  description = "Default values if the data source is empty"
+  default     = null
+}
+
+variable "account_map_bypass" {
+  type        = bool
+  description = "Set to true to skip looking up the remote state and just return the defaults"
+  default     = false
+}
