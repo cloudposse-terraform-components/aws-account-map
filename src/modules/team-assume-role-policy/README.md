@@ -32,7 +32,9 @@ resource "aws_iam_role" "default" {
 ```
 
 <!-- prettier-ignore-start -->
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -104,5 +106,7 @@ resource "aws_iam_role" "default" {
 |------|-------------|
 | <a name="output_github_assume_role_policy"></a> [github\_assume\_role\_policy](#output\_github\_assume\_role\_policy) | JSON encoded string representing the "Assume Role" policy configured by the inputs |
 | <a name="output_policy_document"></a> [policy\_document](#output\_policy\_document) | JSON encoded string representing the "Assume Role" policy configured by the inputs |
+<!-- markdownlint-restore -->
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 <!-- prettier-ignore-end -->

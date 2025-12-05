@@ -13,7 +13,9 @@ the `tenant` portion of your "root" account (your Organization Management Accoun
 `overridable_global_tenant_name` defaults to the value you are using (or the empty string if you are not using `tenant`
 at all).
 
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- markdownlint-disable -->
 ## Requirements
 
 No requirements.
@@ -76,4 +78,6 @@ No resources.
 | <a name="output_principals"></a> [principals](#output\_principals) | Consolidated list of AWS principals corresponding to given input `role_map` |
 | <a name="output_principals_map"></a> [principals\_map](#output\_principals\_map) | Map of AWS principals corresponding to given input `role_map` |
 | <a name="output_team_permission_set_name_map"></a> [team\_permission\_set\_name\_map](#output\_team\_permission\_set\_name\_map) | Map of team names (from `var.teams` and `role_map["identity"]) to permission set names` |
+<!-- markdownlint-restore -->
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+

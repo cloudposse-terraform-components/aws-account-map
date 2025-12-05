@@ -13,7 +13,9 @@ the defaults you want to use in your project. For example, if you are not using 
 `overridable_global_tenant_name` defaults to the value you are using (or the empty string if you are not using `tenant`
 at all).
 
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -90,4 +92,6 @@ at all).
 | <a name="output_terraform_profile_name"></a> [terraform\_profile\_name](#output\_terraform\_profile\_name) | The AWS config profile name for Terraform to use when provisioning resources in the account, when profiles are in use |
 | <a name="output_terraform_role_arn"></a> [terraform\_role\_arn](#output\_terraform\_role\_arn) | The AWS Role ARN for Terraform to use when provisioning resources in the account, when Role ARNs are in use |
 | <a name="output_terraform_role_arns"></a> [terraform\_role\_arns](#output\_terraform\_role\_arns) | All of the terraform role arns |
+<!-- markdownlint-restore -->
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
