@@ -33,6 +33,7 @@ resource "aws_iam_role" "default" {
 
 <!-- prettier-ignore-start -->
 
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 <!-- markdownlint-disable -->
 ## Requirements
@@ -40,13 +41,13 @@ resource "aws_iam_role" "default" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.2.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.9.0, < 6.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.9.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.9.0, < 6.0.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.9.0 |
 
 ## Modules
 
@@ -70,6 +71,8 @@ resource "aws_iam_role" "default" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_account_map_bypass"></a> [account\_map\_bypass](#input\_account\_map\_bypass) | Set to true to skip looking up the remote state and just return the defaults | `bool` | `false` | no |
+| <a name="input_account_map_defaults"></a> [account\_map\_defaults](#input\_account\_map\_defaults) | Default values if the data source is empty | `any` | `null` | no |
 | <a name="input_additional_tag_map"></a> [additional\_tag\_map](#input\_additional\_tag\_map) | Additional key-value pairs to add to each map in `tags_as_list_of_maps`. Not added to `tags` or `id`.<br/>This is for some rare cases where resources want additional configuration of tags<br/>and therefore take a list of maps with tag key, value, and additional configuration. | `map(string)` | `{}` | no |
 | <a name="input_allowed_permission_sets"></a> [allowed\_permission\_sets](#input\_allowed\_permission\_sets) | Map of account:[PermissionSet, PermissionSet...] specifying AWS SSO PermissionSets allowed to assume the role when coming from specified account | `map(list(string))` | `{}` | no |
 | <a name="input_allowed_principal_arns"></a> [allowed\_principal\_arns](#input\_allowed\_principal\_arns) | List of AWS principal ARNs allowed to assume the role. | `list(string)` | `[]` | no |
@@ -108,5 +111,6 @@ resource "aws_iam_role" "default" {
 | <a name="output_policy_document"></a> [policy\_document](#output\_policy\_document) | JSON encoded string representing the "Assume Role" policy configured by the inputs |
 <!-- markdownlint-restore -->
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 
 <!-- prettier-ignore-end -->
