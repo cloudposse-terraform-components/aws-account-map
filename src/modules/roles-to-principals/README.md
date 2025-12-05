@@ -14,6 +14,7 @@ the `tenant` portion of your "root" account (your Organization Management Accoun
 at all).
 
 
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 <!-- markdownlint-disable -->
 ## Requirements
@@ -40,6 +41,8 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_account_map_bypass"></a> [account\_map\_bypass](#input\_account\_map\_bypass) | Set to true to skip looking up the remote state and just return the defaults | `bool` | `false` | no |
+| <a name="input_account_map_defaults"></a> [account\_map\_defaults](#input\_account\_map\_defaults) | Default values if the data source is empty | `any` | `null` | no |
 | <a name="input_additional_tag_map"></a> [additional\_tag\_map](#input\_additional\_tag\_map) | Additional key-value pairs to add to each map in `tags_as_list_of_maps`. Not added to `tags` or `id`.<br/>This is for some rare cases where resources want additional configuration of tags<br/>and therefore take a list of maps with tag key, value, and additional configuration. | `map(string)` | `{}` | no |
 | <a name="input_attributes"></a> [attributes](#input\_attributes) | ID element. Additional attributes (e.g. `workers` or `cluster`) to add to `id`,<br/>in the order they appear in the list. New attributes are appended to the<br/>end of the list. The elements of the list are joined by the `delimiter`<br/>and treated as a single ID element. | `list(string)` | `[]` | no |
 | <a name="input_context"></a> [context](#input\_context) | Single object for setting entire context at once.<br/>See description of individual variables for details.<br/>Leave string and numeric variables as `null` to use default value.<br/>Individual variable settings (non-null) override settings in context object,<br/>except for attributes, tags, and additional\_tag\_map, which are merged. | `any` | <pre>{<br/>  "additional_tag_map": {},<br/>  "attributes": [],<br/>  "delimiter": null,<br/>  "descriptor_formats": {},<br/>  "enabled": true,<br/>  "environment": null,<br/>  "id_length_limit": null,<br/>  "label_key_case": null,<br/>  "label_order": [],<br/>  "label_value_case": null,<br/>  "labels_as_tags": [<br/>    "unset"<br/>  ],<br/>  "name": null,<br/>  "namespace": null,<br/>  "regex_replace_chars": null,<br/>  "stage": null,<br/>  "tags": {},<br/>  "tenant": null<br/>}</pre> | no |
@@ -80,4 +83,5 @@ No resources.
 | <a name="output_team_permission_set_name_map"></a> [team\_permission\_set\_name\_map](#output\_team\_permission\_set\_name\_map) | Map of team names (from `var.teams` and `role_map["identity"]) to permission set names` |
 <!-- markdownlint-restore -->
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 
