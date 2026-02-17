@@ -1,25 +1,25 @@
 output "terraform_role_arn" {
-  value       = local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_name]
+  value       = var.bypass ? null : (local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_name])
   description = "The AWS Role ARN for Terraform to use when provisioning resources in the account, when Role ARNs are in use"
 }
 
 output "terraform_role_arns" {
-  value       = local.account_map.terraform_roles
+  value       = var.bypass ? {} : local.account_map.terraform_roles
   description = "All of the terraform role arns"
 }
 
 output "terraform_profile_name" {
-  value       = local.profiles_enabled ? local.account_map.profiles[local.account_name] : null
+  value       = var.bypass ? null : (local.profiles_enabled ? local.account_map.profiles[local.account_name] : null)
   description = "The AWS config profile name for Terraform to use when provisioning resources in the account, when profiles are in use"
 }
 
 output "aws_partition" {
-  value       = local.account_map.aws_partition
+  value       = var.bypass ? "aws" : local.account_map.aws_partition
   description = "The AWS \"partition\" to use when constructing resource ARNs"
 }
 
 output "org_role_arn" {
-  value       = local.account_org_role_arns[local.account_name]
+  value       = var.bypass ? null : local.account_org_role_arns[local.account_name]
   description = "The AWS Role ARN for Terraform to use when SuperAdmin is provisioning resources in the account"
 }
 
@@ -47,37 +47,37 @@ output "current_account_account_name" {
 }
 
 output "dns_terraform_role_arn" {
-  value       = local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_map.dns_account_account_name]
+  value       = var.bypass ? null : (local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_map.dns_account_account_name])
   description = "The AWS Role ARN for Terraform to use to provision DNS Zone delegations, when Role ARNs are in use"
 }
 
 output "dns_terraform_profile_name" {
-  value       = local.profiles_enabled ? local.account_map.terraform_profiles[local.account_map.dns_account_account_name] : null
+  value       = var.bypass ? null : (local.profiles_enabled ? local.account_map.terraform_profiles[local.account_map.dns_account_account_name] : null)
   description = "The AWS config profile name for Terraform to use to provision DNS Zone delegations, when profiles are in use"
 }
 
 output "audit_terraform_role_arn" {
-  value       = local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_map.audit_account_account_name]
+  value       = var.bypass ? null : (local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_map.audit_account_account_name])
   description = "The AWS Role ARN for Terraform to use to provision resources in the \"audit\" role account, when Role ARNs are in use"
 }
 
 output "audit_terraform_profile_name" {
-  value       = local.profiles_enabled ? local.account_map.terraform_profiles[local.account_map.audit_account_account_name] : null
+  value       = var.bypass ? null : (local.profiles_enabled ? local.account_map.terraform_profiles[local.account_map.audit_account_account_name] : null)
   description = "The AWS config profile name for Terraform to use to provision resources in the \"audit\" role account, when profiles are in use"
 }
 
 output "identity_account_account_name" {
-  value       = local.account_map.identity_account_account_name
+  value       = var.bypass ? "" : local.account_map.identity_account_account_name
   description = "The account name (usually `<tenant>-<stage>`) for the account holding primary IAM roles"
 }
 
 output "identity_terraform_role_arn" {
-  value       = local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_map.identity_account_account_name]
+  value       = var.bypass ? null : (local.profiles_enabled ? null : local.final_terraform_role_arns[local.account_map.identity_account_account_name])
   description = "The AWS Role ARN for Terraform to use to provision resources in the \"identity\" role account, when Role ARNs are in use"
 }
 
 output "identity_terraform_profile_name" {
-  value       = local.profiles_enabled ? local.account_map.terraform_profiles[local.account_map.identity_account_account_name] : null
+  value       = var.bypass ? null : (local.profiles_enabled ? local.account_map.terraform_profiles[local.account_map.identity_account_account_name] : null)
   description = "The AWS config profile name for Terraform to use to provision resources in the \"identity\" role account, when profiles are in use"
 }
 

@@ -1,6 +1,6 @@
 
 data "awsutils_caller_identity" "current" {
-  count = local.dynamic_terraform_role_enabled ? 1 : 0
+  count = !var.bypass && local.dynamic_terraform_role_enabled ? 1 : 0
   # Avoid conflict with caller's provider which is using this module's output to assume a role.
   provider = awsutils.iam-roles
 }
@@ -19,6 +19,7 @@ module "account_map" {
   source  = "cloudposse/stack-config/yaml//modules/remote-state"
   version = "1.8.0"
 
+  bypass      = var.bypass
   component   = "account-map"
   privileged  = var.privileged
   tenant      = var.overridable_global_tenant_name
@@ -29,30 +30,30 @@ module "account_map" {
 }
 
 locals {
-  profiles_enabled = coalesce(var.profiles_enabled, local.account_map.profiles_enabled)
+  profiles_enabled = var.bypass ? false : coalesce(var.profiles_enabled, local.account_map.profiles_enabled)
 
-  dynamic_terraform_role_enabled = try(local.account_map.terraform_dynamic_role_enabled, false)
+  dynamic_terraform_role_enabled = var.bypass ? false : try(local.account_map.terraform_dynamic_role_enabled, false)
 
   account_map       = module.account_map.outputs
-  account_name      = lookup(module.always.descriptors, "account_name", module.always.stage)
-  root_account_name = local.account_map.root_account_account_name
+  account_name      = var.bypass ? "" : lookup(module.always.descriptors, "account_name", module.always.stage)
+  root_account_name = var.bypass ? "" : local.account_map.root_account_account_name
 
-  current_user_role_arn = coalesce(one(data.awsutils_caller_identity.current[*].eks_role_arn), one(data.awsutils_caller_identity.current[*].arn), "arn:${local.account_map.aws_partition}:iam::000000000000:role/disabled")
+  current_user_role_arn = var.bypass ? "arn:aws:iam::000000000000:role/disabled" : coalesce(one(data.awsutils_caller_identity.current[*].eks_role_arn), one(data.awsutils_caller_identity.current[*].arn), "arn:${local.account_map.aws_partition}:iam::000000000000:role/disabled")
 
   current_identity_account = local.dynamic_terraform_role_enabled ? split(":", local.current_user_role_arn)[4] : ""
 
-  terraform_access_map = try(local.account_map.terraform_access_map[local.current_user_role_arn], {})
+  terraform_access_map = var.bypass ? {} : try(local.account_map.terraform_access_map[local.current_user_role_arn], {})
 
-  is_root_user   = local.current_identity_account == local.account_map.full_account_map[local.root_account_name]
-  is_target_user = local.current_identity_account == local.account_map.full_account_map[local.account_name]
+  is_root_user   = var.bypass ? false : local.current_identity_account == local.account_map.full_account_map[local.root_account_name]
+  is_target_user = var.bypass ? false : local.current_identity_account == local.account_map.full_account_map[local.account_name]
 
-  account_org_role_arns = { for name, id in local.account_map.full_account_map : name =>
+  account_org_role_arns = var.bypass ? {} : { for name, id in local.account_map.full_account_map : name =>
     name == local.root_account_name ? null : format(
       "arn:%s:iam::%s:role/OrganizationAccountAccessRole", local.account_map.aws_partition, id
     )
   }
 
-  static_terraform_roles = local.account_map.terraform_roles
+  static_terraform_roles = var.bypass ? {} : local.account_map.terraform_roles
 
   dynamic_terraform_role_maps = local.dynamic_terraform_role_enabled ? {
     for account_name in local.account_map.all_accounts : account_name => {
@@ -70,15 +71,15 @@ locals {
     }
   } : {}
 
-  dynamic_terraform_role_types = { for account_name in local.account_map.all_accounts :
+  dynamic_terraform_role_types = local.dynamic_terraform_role_enabled ? { for account_name in local.account_map.all_accounts :
     account_name => try(local.terraform_access_map[account_name], "none")
-  }
+  } : {}
 
   dynamic_terraform_roles = local.dynamic_terraform_role_enabled ? { for account_name in local.account_map.all_accounts :
     account_name => local.dynamic_terraform_role_maps[account_name][local.dynamic_terraform_role_types[account_name]]
   } : {}
 
-  final_terraform_role_arns = { for account_name in local.account_map.all_accounts : account_name =>
-    local.dynamic_terraform_role_enabled ? local.dynamic_terraform_roles[account_name] : local.static_terraform_roles[account_name]
-  }
+  final_terraform_role_arns = local.dynamic_terraform_role_enabled ? { for account_name in local.account_map.all_accounts :
+    account_name => local.dynamic_terraform_roles[account_name]
+  } : local.static_terraform_roles
 }

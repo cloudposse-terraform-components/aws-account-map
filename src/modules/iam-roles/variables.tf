@@ -1,3 +1,9 @@
+variable "bypass" {
+  type        = bool
+  description = "Skip the account-map lookup and return safe defaults. Use when the caller does not need dynamic role resolution (e.g., legacy accounts that authenticate via environment credentials)."
+  default     = false
+}
+
 variable "privileged" {
   type        = bool
   description = "True if the Terraform user already has access to the backend"
