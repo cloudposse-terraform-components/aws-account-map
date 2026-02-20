@@ -135,7 +135,7 @@ components:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_accounts"></a> [accounts](#module\_accounts) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
+| <a name="module_accounts"></a> [accounts](#module\_accounts) | cloudposse/stack-config/yaml//modules/remote-state | 2.0.0 |
 | <a name="module_atmos"></a> [atmos](#module\_atmos) | cloudposse/label/null | 0.25.0 |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
 

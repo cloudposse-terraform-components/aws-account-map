@@ -34,6 +34,7 @@ resource "aws_iam_role" "default" {
 <!-- prettier-ignore-start -->
 
 
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 <!-- markdownlint-disable -->
 ## Requirements
@@ -55,7 +56,7 @@ resource "aws_iam_role" "default" {
 |------|--------|---------|
 | <a name="module_allowed_role_map"></a> [allowed\_role\_map](#module\_allowed\_role\_map) | ../roles-to-principals | n/a |
 | <a name="module_denied_role_map"></a> [denied\_role\_map](#module\_denied\_role\_map) | ../roles-to-principals | n/a |
-| <a name="module_github_oidc_provider"></a> [github\_oidc\_provider](#module\_github\_oidc\_provider) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
+| <a name="module_github_oidc_provider"></a> [github\_oidc\_provider](#module\_github\_oidc\_provider) | cloudposse/stack-config/yaml//modules/remote-state | 2.0.0 |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
 
 ## Resources
@@ -111,6 +112,7 @@ resource "aws_iam_role" "default" {
 | <a name="output_policy_document"></a> [policy\_document](#output\_policy\_document) | JSON encoded string representing the "Assume Role" policy configured by the inputs |
 <!-- markdownlint-restore -->
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 
 
 <!-- prettier-ignore-end -->

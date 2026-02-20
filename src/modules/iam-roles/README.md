@@ -15,6 +15,7 @@ at all).
 
 
 
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 <!-- markdownlint-disable -->
 ## Requirements
@@ -34,7 +35,7 @@ at all).
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_account_map"></a> [account\_map](#module\_account\_map) | cloudposse/stack-config/yaml//modules/remote-state | 1.8.0 |
+| <a name="module_account_map"></a> [account\_map](#module\_account\_map) | cloudposse/stack-config/yaml//modules/remote-state | 2.0.0 |
 | <a name="module_always"></a> [always](#module\_always) | cloudposse/label/null | 0.25.0 |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
 
@@ -96,4 +97,5 @@ at all).
 | <a name="output_terraform_role_arns"></a> [terraform\_role\_arns](#output\_terraform\_role\_arns) | All of the terraform role arns |
 <!-- markdownlint-restore -->
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 
